@@ -33,8 +33,11 @@ export function applyAlphaMask(imageData: ImageData, mask: Uint8Array): ImageDat
     imageData.height
   );
   const d = out.data;
+  // Multiply into the existing alpha rather than replacing it. Overwriting turns
+  // an input PNG's already-transparent pixels opaque, which is how a pre-cut
+  // image comes back with a black halo.
   for (let i = 0, p = 3; i < mask.length; i++, p += 4) {
-    d[p] = mask[i];
+    d[p] = (d[p] * mask[i] + 127) / 255;
   }
   return out;
 }

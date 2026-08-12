@@ -179,7 +179,7 @@ export default function SpikePage() {
     <main className="mx-auto max-w-3xl space-y-6 px-6 py-12">
       <header>
         <h1 className="text-lg font-semibold">Path B spike</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-dim">
           Throwaway. Answers one question: is WebGPU inference fast enough to build Path B.
         </p>
       </header>
@@ -192,8 +192,8 @@ export default function SpikePage() {
             onClick={() => setProvider(p)}
             className={`rounded-md border px-3 py-1.5 text-sm ${
               provider === p
-                ? 'border-neutral-900 bg-neutral-900 text-white'
-                : 'border-neutral-300 bg-white text-neutral-600'
+                ? 'border-signal bg-signal text-ink'
+                : 'border-line-2 bg-panel text-dim'
             }`}
           >
             {p}
@@ -210,7 +210,7 @@ export default function SpikePage() {
         />
       </div>
 
-      {status && <p className="text-sm text-neutral-600">{status}</p>}
+      {status && <p className="text-sm text-dim">{status}</p>}
       {error && (
         <pre className="overflow-x-auto rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-800">
           {error}
@@ -221,8 +221,8 @@ export default function SpikePage() {
         <table className="w-full text-sm">
           <tbody>
             {log.map((t) => (
-              <tr key={t.label} className="border-b border-neutral-100">
-                <td className="py-1.5 text-neutral-600">{t.label}</td>
+              <tr key={t.label} className="border-b border-line">
+                <td className="py-1.5 text-dim">{t.label}</td>
                 <td className="py-1.5 text-right tabular-nums">{t.ms.toFixed(0)} ms</td>
               </tr>
             ))}
@@ -235,7 +235,7 @@ export default function SpikePage() {
       )}
 
       {resultUrl && (
-        <div className="checkerboard flex items-center justify-center rounded-lg border border-neutral-200 p-4">
+        <div className="checkerboard flex items-center justify-center rounded-lg border border-line p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={resultUrl} alt="Path B cutout" className="max-h-[26rem] max-w-full object-contain" />
         </div>

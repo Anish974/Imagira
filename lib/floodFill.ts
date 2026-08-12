@@ -72,6 +72,13 @@ export function floodFillMask(
   const tryPush = (idx: number): void => {
     if (state[idx] !== UNSEEN) return;
     const p = idx * 4;
+    // An already-transparent pixel is background whatever its RGB claims to be,
+    // and the fill has to be able to spread through it to reach the subject.
+    if (data[p + 3] <= cfg.TRANSPARENT_ALPHA) {
+      state[idx] = FILLED;
+      queue[tail++] = idx;
+      return;
+    }
     if (distanceTo(data[p], data[p + 1], data[p + 2]) <= tolerance) {
       state[idx] = FILLED;
       queue[tail++] = idx;

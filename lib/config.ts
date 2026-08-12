@@ -14,6 +14,12 @@ export const CONFIG = {
   ALPHA_BLUR_RADIUS: 1.5,
   /** §3.3 pixels to erode the kept mask by before blurring (kills the colour fringe) */
   EROSION_PX: 1,
+  /**
+   * Alpha at or below this counts as already-background. An input PNG can arrive
+   * with its background already cut out; those pixels carry meaningless RGB
+   * (usually 0,0,0) and must not be read as opaque black.
+   */
+  TRANSPARENT_ALPHA: 16,
 };
 
 export type Config = typeof CONFIG;

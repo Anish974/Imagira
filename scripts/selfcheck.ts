@@ -98,5 +98,45 @@ assert.equal(defringed.data.length, data.length, 'defringed image data length mu
 const adjusted = adjustClarityAndContrast(img, 15, 5);
 assert.equal(adjusted.data.length, data.length, 'adjusted image data length must match');
 
-console.log('ok — white-on-white survives, background removed, edges soft, image enhancement functions pass');
+// An input PNG can arrive with its background already cut out. Transparent
+// pixels carry RGB 0,0,0, so reading colour alone mistakes them for opaque black
+// and the compose step turns them back into black.
+import { applyAlphaMask } from '../lib/imageUtils.ts';
+
+function preCutPng(): Uint8ClampedArray {
+  const px = new Uint8ClampedArray(W * H * 4);
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const inSubject = x >= 20 && x < 44 && y >= 20 && y < 44;
+      // White subject on a transparent field — the trap is that both read as
+      // "background" if you only look at RGB.
+      px[i] = px[i + 1] = px[i + 2] = inSubject ? 255 : 0;
+      px[i + 3] = inSubject ? 255 : 0;
+    }
+  }
+  px[(32 * W + 32) * 4 + 3] = 128; // one half-transparent pixel inside the subject
+  return px;
+}
+
+const preCut = preCutPng();
+const preCutDetection = detectPlainBg(preCut, W, H);
+assert.equal(preCutDetection.isPlain, true, 'a transparent border is a plain background');
+assert.ok(preCutDetection.transparentSamples > 0, 'transparent border samples must be counted');
+
+const preCutMask = floodFillMask(preCut, W, H, preCutDetection.bgLab);
+assert.equal(at(preCutMask, 0, 0), 0, 'transparent border must be treated as background');
+assert.equal(at(preCutMask, 30, 30), 255, 'the white subject must survive a transparent field');
+
+const composed = applyAlphaMask(new ImageData(new Uint8ClampedArray(preCut), W, H), preCutMask);
+assert.equal(composed.data[(0 * W + 0) * 4 + 3], 0, 'transparent pixels must stay transparent');
+assert.equal(
+  composed.data[(32 * W + 32) * 4 + 3],
+  128,
+  'a half-transparent subject pixel must not be forced opaque'
+);
+
+console.log(
+  'ok — white-on-white survives, background removed, edges soft, pre-cut PNGs keep their alpha, image enhancement functions pass'
+);
 
