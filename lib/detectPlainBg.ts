@@ -10,6 +10,8 @@ export interface PlainBgResult {
   /** same colour as RGB, for UI display */
   bgRgb: [number, number, number];
   sampleCount: number;
+  /** border samples that were already transparent — the image arrived pre-cut */
+  transparentSamples: number;
 }
 
 /**
@@ -25,9 +27,18 @@ export function detectPlainBg(
   const step = Math.max(1, cfg.BORDER_SAMPLE_STEP);
   const labs: Lab[] = [];
   const rgbs: [number, number, number][] = [];
+  let transparent = 0;
+  let sampled = 0;
 
   const sample = (x: number, y: number) => {
     const i = (y * width + x) * 4;
+    sampled++;
+    // Already-transparent pixels are background by definition, and their RGB is
+    // meaningless — reading it would drag the detected colour toward black.
+    if (data[i + 3] <= cfg.TRANSPARENT_ALPHA) {
+      transparent++;
+      return;
+    }
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
@@ -53,7 +64,9 @@ export function detectPlainBg(
     sumA += lab.a;
     sumB += lab.b;
   }
-  const mean: Lab = { L: sumL / n, a: sumA / n, b: sumB / n };
+  // n can be 0 when the whole border is already transparent; avoid NaN poisoning
+  // every later distance comparison.
+  const mean: Lab = n > 0 ? { L: sumL / n, a: sumA / n, b: sumB / n } : { L: 0, a: 0, b: 0 };
 
   // Inliers define the background colour — outliers are subject bleeding into
   // the frame edge and would drag the seed colour off target.
@@ -76,7 +89,9 @@ export function detectPlainBg(
     }
   }
 
-  const ratio = inliers / n;
+  // Transparent border samples are uniform background too, so they count toward
+  // "plain" even though they contribute no colour.
+  const ratio = sampled > 0 ? (inliers + transparent) / sampled : 0;
   const bgLab: Lab = inliers > 0 ? { L: iL / inliers, a: ia / inliers, b: ibb / inliers } : mean;
   const bgRgb: [number, number, number] =
     inliers > 0
@@ -88,6 +103,7 @@ export function detectPlainBg(
     ratio,
     bgLab,
     bgRgb,
-    sampleCount: n,
+    sampleCount: sampled,
+    transparentSamples: transparent,
   };
 }

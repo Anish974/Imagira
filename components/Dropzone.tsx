@@ -60,18 +60,26 @@ export default function Dropzone({ onFile }: { onFile: (file: File) => void }) {
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
       }}
-      className={`flex h-80 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed px-6 text-center transition-colors ${
-        dragging
-          ? 'border-accent bg-blue-50/60'
-          : 'border-neutral-300 bg-white hover:border-neutral-400'
+      className={`group flex h-[26rem] cursor-pointer flex-col items-center justify-center border border-dashed transition-colors ${
+        dragging ? 'border-signal bg-raise' : 'border-line-2 bg-panel hover:border-faint'
       }`}
     >
-      <p className="text-base text-neutral-800">Drop an image here</p>
-      <p className="mt-2 text-sm text-neutral-500">
-        or click to browse &middot; paste with <kbd className="font-sans">Ctrl</kbd>+
-        <kbd className="font-sans">V</kbd>
+      <span className="tag">Input</span>
+
+      <p className="mt-5 text-lg text-text">Drop an image</p>
+      <p className="readout mt-2 text-xs text-dim">
+        click to browse &nbsp;·&nbsp; or press{' '}
+        <kbd className="border border-line-2 px-1.5 py-0.5 text-[11px] text-text">Ctrl</kbd>
+        <span className="text-faint"> + </span>
+        <kbd className="border border-line-2 px-1.5 py-0.5 text-[11px] text-text">V</kbd>
       </p>
-      <p className="mt-6 text-xs text-neutral-400">PNG, JPG, WebP</p>
+
+      <div className="mt-10 flex items-center gap-6">
+        <span className="tag">png</span>
+        <span className="tag">jpg</span>
+        <span className="tag">webp</span>
+      </div>
+
       <input
         ref={inputRef}
         type="file"
