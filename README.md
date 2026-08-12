@@ -175,6 +175,6 @@ Distributed under the MIT License. See `LICENSE` for details.
 
 <div align="center">
 
-Crafted with ❤️ by [Anish](https://github.com/Anish974) & [AYUS Labs](https://github.com/ayuslabs)
+Crafted with ❤️ by [Anish](https://anishpatankar.vercel.app) & [AYUS Labs](https://ayuslabs.com)
 
 </div>
